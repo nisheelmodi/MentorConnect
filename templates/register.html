@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your MentorConnect account and start your mentorship journey today.">
+    <title>Register | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<canvas id="hero-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+
+<div class="login-container" style="position:relative;z-index:1;">
+
+    <div class="login-card">
+
+        <div class="login-card-logo">
+            <div class="logo-icon">🚀</div>
+        </div>
+
+        <h1>Create Account</h1>
+        <p>Join MentorConnect and start your mentorship journey.</p>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('register') }}" method="POST">
+
+            <input
+                type="text"
+                name="fullname"
+                placeholder="Full Name"
+                required
+                autocomplete="name"
+            >
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                required
+                autocomplete="email"
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                autocomplete="new-password"
+            >
+
+            <input
+                type="password"
+                name="confirm_password"
+                placeholder="Confirm Password"
+                required
+                autocomplete="new-password"
+            >
+
+            <select name="role" required>
+                <option value="">Select Your Role</option>
+                <option value="mentee">🎓 Junior (Mentee)</option>
+                <option value="mentor">⭐ Senior (Mentor)</option>
+            </select>
+
+            <button type="submit">
+                Create Account →
+            </button>
+
+        </form>
+
+        <div class="login-footer">
+            <p>
+                Already have an account?
+                <a href="{{ url_for('login') }}">Sign in</a>
+            </p>
+        </div>
+
+        <div class="back-home">
+            <a href="{{ url_for('home') }}">← Back to Home</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

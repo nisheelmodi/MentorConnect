@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete your MentorConnect profile to get discovered by mentors and mentees.">
+    <title>Complete Profile | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <h1>Complete Your Profile</h1>
+        <p>Welcome <strong>{{ session.fullname }}</strong> 👋 — Fill in your details to get discovered.</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('profile') }}" method="POST">
+
+            <label>Department</label>
+            <input
+                type="text"
+                name="department"
+                placeholder="e.g. Computer Science"
+                value="{{ profile.department if profile else '' }}"
+                required
+            >
+
+            {% if role == "mentor" %}
+
+            <label>Skills</label>
+            <input
+                type="text"
+                name="skills"
+                placeholder="e.g. Python, AI, Machine Learning"
+                value="{{ profile.skills if profile else '' }}"
+                required
+            >
+
+            <label>Experience</label>
+            <input
+                type="text"
+                name="experience"
+                placeholder="e.g. 3 Years"
+                value="{{ profile.experience if profile else '' }}"
+                required
+            >
+
+            {% endif %}
+
+            {% if role == "mentee" %}
+
+            <label>Interests</label>
+            <input
+                type="text"
+                name="interests"
+                placeholder="e.g. AI, Web Development, Data Science"
+                value="{{ profile.interests if profile else '' }}"
+                required
+            >
+
+            <label>Current Year</label>
+            <input
+                type="text"
+                name="year"
+                placeholder="e.g. 3rd Year"
+                value="{{ profile.year if profile else '' }}"
+                required
+            >
+
+            {% endif %}
+
+            <label>Bio</label>
+            <textarea
+                name="bio"
+                rows="5"
+                placeholder="Tell others about yourself, your goals, and what you're looking for..."
+                required
+            >{{ profile.bio if profile else '' }}</textarea>
+
+            <button type="submit">
+                Save Profile →
+            </button>
+
+        </form>
+
+        <br>
+
+        <a href="{{ url_for('dashboard') }}">
+            <button style="align-self:center;padding:12px 24px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-secondary);border-radius:var(--radius-md);font-size:14px;font-weight:600;">
+                ← Back to Dashboard
+            </button>
+        </a>
+
+    </div>
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

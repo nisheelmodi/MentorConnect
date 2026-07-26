@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Schedule and manage your mentorship sessions on MentorConnect.">
+    <title>Sessions | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="sessions-page">
+
+    <div class="page-header">
+        <h1>📅 My Mentorship Sessions</h1>
+        <p>View, schedule and manage your upcoming mentorship sessions.</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if role == 'mentor' %}
+    <div class="session-form-card">
+        <h2>📆 Schedule a Session</h2>
+
+        {% if mentees %}
+        <form action="{{ url_for('sessions') }}" method="POST">
+
+            <label>Select Accepted Mentee</label>
+            <select name="mentee_id" required>
+                <option value="">Choose a mentee</option>
+                {% for mentee in mentees %}
+                <option value="{{ mentee.id }}">{{ mentee.fullname }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Session Date</label>
+            <input
+                type="date"
+                name="session_date"
+                id="session_date"
+                required
+            >
+
+            <label>Session Time</label>
+            <input
+                type="time"
+                name="session_time"
+                required
+            >
+
+            <label>Meeting Link</label>
+            <input
+                type="url"
+                name="meeting_link"
+                placeholder="https://zoom.us/j/..."
+                required
+            >
+
+            <button type="submit">Schedule Session →</button>
+
+        </form>
+        {% else %}
+        <div class="no-data" style="background:transparent;border:none;padding:20px 0;">
+            <h3>No Accepted Mentees</h3>
+            <p>Accept a mentee request first to schedule sessions.</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+
+    <div class="session-container">
+
+        {% if sessions %}
+
+            {% for session_data in sessions %}
+
+            <div class="session-card stagger-item" id="session-{{ session_data.id }}">
+
+                <h2>
+                    {% if role == 'mentor' %}
+                        🎓 {{ session_data.mentee_name }}
+                    {% else %}
+                        ⭐ {{ session_data.mentor_name }}
+                    {% endif %}
+                </h2>
+
+                <p><strong>Date:</strong> {{ session_data.session_date }}</p>
+                <p><strong>Time:</strong> {{ session_data.session_time }}</p>
+                <p>
+                    <strong>Status:</strong>
+                    <span class="badge badge-{{ session_data.status|lower }}">
+                        {{ session_data.status|capitalize }}
+                    </span>
+                </p>
+
+                {% if session_data.status|lower == "upcoming" %}
+
+                    <a href="{{ session_data.meeting_link }}" target="_blank">
+                        <button>🔗 Join Meeting</button>
+                    </a>
+
+                {% elif session_data.status|lower == "completed" %}
+
+                    <button disabled>✓ Completed</button>
+
+                {% elif session_data.status|lower == "cancelled" %}
+
+                    <button disabled>✗ Cancelled</button>
+
+                {% else %}
+
+                    <button disabled>{{ session_data.status|capitalize }}</button>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-data">
+                <h2>📭 No Sessions Scheduled</h2>
+                <p>Your upcoming mentorship sessions will appear here.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

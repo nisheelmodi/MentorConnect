@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to MentorConnect and continue your mentorship journey.">
+    <title>Login | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+
+<!-- Particle canvas for login bg -->
+<canvas id="hero-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+
+<div class="login-container" style="position:relative;z-index:1;">
+
+    <div class="login-card">
+
+        <div class="login-card-logo">
+            <div class="logo-icon">⬡</div>
+        </div>
+
+        <h1>Welcome Back</h1>
+        <p>Login to continue your mentorship journey.</p>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('login') }}" method="POST">
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Email address"
+                required
+                autocomplete="email"
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                autocomplete="current-password"
+            >
+
+            <button type="submit" id="loginBtn">
+                Sign In →
+            </button>
+
+        </form>
+
+        <div class="login-footer">
+            <p>
+                Don't have an account?
+                <a href="{{ url_for('register') }}">Create one free</a>
+            </p>
+        </div>
+
+        <div class="back-home">
+            <a href="{{ url_for('home') }}">← Back to Home</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

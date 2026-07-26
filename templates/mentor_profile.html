@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View mentor profile on MentorConnect.">
+    <title>{{ mentor.fullname }} | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="mentor-profile-page">
+
+    <div class="mentor-profile-card">
+
+        <!-- Mentor Avatar -->
+        <div style="display:flex;align-items:center;gap:24px;margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid var(--border);">
+            <div class="mentor-avatar" data-name="{{ mentor.fullname }}" style="width:80px;height:80px;font-size:30px;border-radius:50%;flex-shrink:0;">
+                {{ mentor.fullname[0] | upper }}
+            </div>
+            <div>
+                <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;">
+                    {{ mentor.fullname }}
+                </h1>
+                <span class="badge badge-upcoming">⭐ Mentor</span>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div style="display:grid;gap:18px;margin-bottom:32px;">
+
+            <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Department</div>
+                <div style="font-size:16px;color:var(--text-primary);">{{ mentor.department }}</div>
+            </div>
+
+            <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Experience</div>
+                <div style="font-size:16px;color:var(--text-primary);">{{ mentor.experience }}</div>
+            </div>
+
+            {% if mentor.skills %}
+            <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Skills</div>
+                <div class="skill-tags">
+                    {% for skill in mentor.skills.split(',') %}
+                    <span class="skill-tag">{{ skill.strip() }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">About</div>
+                <div style="font-size:15px;color:var(--text-secondary);line-height:1.7;">{{ mentor.bio }}</div>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+            {% if role == 'mentee' %}
+            <a href="{{ url_for('send_request', mentor_id=mentor.user_id) }}">
+                <button style="padding:14px 28px;background:var(--grad-primary);color:white;border-radius:var(--radius-md);font-weight:700;font-size:15px;box-shadow:var(--shadow-btn);">
+                    Send Request →
+                </button>
+            </a>
+            {% endif %}
+
+            <a href="{{ url_for('mentors') }}">
+                <button style="padding:14px 24px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-secondary);border-radius:var(--radius-md);font-size:14px;font-weight:600;">
+                    ← Back to Mentors
+                </button>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

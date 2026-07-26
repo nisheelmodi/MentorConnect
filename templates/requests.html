@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage your mentorship requests on MentorConnect.">
+    <title>Mentorship Requests | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="requests-page">
+
+    <div class="page-header">
+        <h1>📥 Mentorship Requests</h1>
+        <p>Review and manage your mentorship connection requests.</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="request-container">
+
+        {% if requests %}
+
+            {% for request in requests %}
+
+            <div class="request-card stagger-item">
+
+                <h2>{{ request.fullname }}</h2>
+
+                <p><strong>Department:</strong> {{ request.department }}</p>
+
+                <p>
+                    <strong>Status:</strong>
+                    <span class="badge badge-{{ request.status|lower }}">
+                        {{ request.status|capitalize }}
+                    </span>
+                </p>
+
+                <p><strong>Requested:</strong> {{ request.created_at }}</p>
+
+                <div class="request-buttons">
+
+                    {% if role == "mentor" %}
+
+                        {% if request.status|default('pending')|lower == "pending" %}
+
+                        <a href="{{ url_for('accept_request', request_id=request.id) }}">
+                            <button class="accept-btn">✓ Accept</button>
+                        </a>
+
+                        <a href="{{ url_for('reject_request', request_id=request.id) }}">
+                            <button class="reject-btn">✗ Reject</button>
+                        </a>
+
+                        {% else %}
+
+                        <button disabled>{{ request.status|capitalize }}</button>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <button disabled>{{ request.status|capitalize }}</button>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-data">
+                <h2>📭 No Requests Found</h2>
+                <p>You don't have any mentorship requests yet.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

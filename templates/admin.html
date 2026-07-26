@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MentorConnect Admin Dashboard — Manage users and monitor platform activity.">
+    <title>Admin Dashboard | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="admin-page">
+
+    <h1>⚙️ Admin Dashboard</h1>
+    <p>Manage users and monitor the MentorConnect platform in real-time.</p>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- Statistics -->
+    <div class="admin-stats">
+
+        <div class="stat-card">
+            <h2 class="counter" data-target="{{ stats.total_users }}">0</h2>
+            <p>Total Users</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 class="counter" data-target="{{ stats.total_mentors }}">0</h2>
+            <p>Total Mentors</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 class="counter" data-target="{{ stats.total_mentees }}">0</h2>
+            <p>Total Mentees</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 class="counter" data-target="{{ stats.pending_requests }}">0</h2>
+            <p>Pending Requests</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 class="counter" data-target="{{ stats.total_sessions }}">0</h2>
+            <p>Total Sessions</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>{{ stats.average_rating }}</h2>
+            <p>Avg. Rating ⭐</p>
+        </div>
+
+    </div>
+
+
+    <h2>👥 User Management</h2>
+
+    {% if users %}
+
+    <!-- Table search -->
+    <div class="search-box" style="margin-bottom:24px;">
+        <form style="display:flex;gap:12px;">
+            <input
+                type="text"
+                id="tableSearch"
+                placeholder="Search users by name, email or role..."
+                style="flex:1;padding:14px 18px;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--radius-md);font-size:15px;"
+            >
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>#{{ user.id }}</td>
+                    <td><strong style="color:var(--text-primary);">{{ user.fullname }}</strong></td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="badge badge-{% if user.role == 'mentor' %}upcoming{% elif user.role == 'mentee' %}accepted{% else %}pending{% endif %}">
+                            {{ user.role|capitalize }}
+                        </span>
+                    </td>
+                    <td>{{ user.created_at }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_user', user_id=user.id) }}"
+                           onclick="return confirm('Are you sure you want to delete this user?')">
+                            <button class="delete-btn">Delete</button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+
+    <div class="no-data">
+        <h3>No Users Found</h3>
+        <p>There are no registered users on the platform yet.</p>
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<div id="loader">
+    <div class="loader-spinner"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

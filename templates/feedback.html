@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rate and review your mentorship sessions on MentorConnect.">
+    <title>Feedback | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="feedback-page">
+
+    <div class="page-header">
+        <h1>⭐ Session Feedback</h1>
+        <p>Share your mentorship experience and help improve the platform.</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="feedback-container">
+
+        <form action="{{ url_for('feedback') }}" method="POST">
+
+            <label>Select Session</label>
+            <select name="session_id" required>
+                <option value="">Choose a completed session</option>
+                {% for session_data in completed_sessions %}
+                <option value="{{ session_data.id }}">
+                    {{ session_data.fullname }} — {{ session_data.session_date }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label>Rating</label>
+            <select name="rating" required>
+                <option value="">Choose Rating</option>
+                <option value="1">⭐ 1 — Poor</option>
+                <option value="2">⭐⭐ 2 — Fair</option>
+                <option value="3">⭐⭐⭐ 3 — Good</option>
+                <option value="4">⭐⭐⭐⭐ 4 — Very Good</option>
+                <option value="5">⭐⭐⭐⭐⭐ 5 — Excellent</option>
+            </select>
+
+            <label>Comments</label>
+            <textarea
+                name="comments"
+                id="comments"
+                rows="6"
+                placeholder="What went well? What could be improved? Share your thoughts..."
+                required
+            ></textarea>
+
+            <button type="submit">Submit Feedback →</button>
+
+        </form>
+
+    </div>
+
+    <h2>📝 Your Previous Feedback</h2>
+
+    <div class="feedback-history">
+
+        {% if feedbacks %}
+
+            {% for feedback in feedbacks %}
+
+            <div class="feedback-card stagger-item">
+
+                <h3>{{ feedback.fullname }}</h3>
+
+                <p><strong>Rating:</strong> {{ "⭐" * feedback.rating }} ({{ feedback.rating }}/5)</p>
+
+                <p>{{ feedback.comments }}</p>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-data">
+                <h3>📭 No Feedback Submitted</h3>
+                <p>Your submitted feedback will appear here after sessions are completed.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

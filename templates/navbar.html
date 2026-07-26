@@ -1,0 +1,45 @@
+<!-- Socket.io global integration for notifications -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+
+<!-- NAVBAR -->
+<nav>
+    <div class="nav-inner">
+        <h2>MentorConnect</h2>
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('profile') }}">Profile</a></li>
+            <li><a href="{{ url_for('mentors') }}">Mentors</a></li>
+            <li><a href="{{ url_for('requests') }}">Requests</a></li>
+            <li><a href="{{ url_for('chat') }}">Chat</a></li>
+            <li><a href="{{ url_for('sessions') }}">Sessions</a></li>
+            <li><a href="{{ url_for('feedback') }}">Feedback</a></li>
+            {% if session.get('role') == "admin" or role == "admin" %}
+            <li><a href="{{ url_for('admin') }}">Admin</a></li>
+            {% endif %}
+            
+            <!-- Notification Bell -->
+            <li class="notification-wrapper">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-dot" id="notificationDot" style="display: none;"></span>
+                </div>
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="dropdown-header">
+                        <h4>Notifications</h4>
+                    </div>
+                    <div class="dropdown-body" id="notificationList">
+                        <!-- Notifications injected via JS -->
+                        <div class="no-notifications">No new notifications.</div>
+                    </div>
+                </div>
+            </li>
+
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<script>
+    // Initialize socket globally for authenticated users
+    window.userId = "{{ session.get('user_id') }}";
+</script>

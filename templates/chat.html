@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chat with your mentors and mentees in real-time on MentorConnect.">
+    <title>Chat | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="chat-page">
+
+    <div class="chat-container">
+
+        <!-- Left Sidebar -->
+        <div class="chat-sidebar">
+
+            <h2>💬 Conversations</h2>
+
+            {% if users %}
+
+                {% for user in users %}
+
+                <a href="{{ url_for('open_chat', user_id=user.id) }}" class="conversation-link">
+
+                    <div class="conversation-card {% if selected_user and selected_user.id == user.id %}active-user{% endif %}">
+                        <h3>{{ user.fullname }}</h3>
+                        <p>{{ user.role|capitalize if user.role is defined else '' }}</p>
+                    </div>
+
+                </a>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div style="padding:28px;text-align:center;color:var(--text-muted);">
+                    <p>No conversations yet.</p>
+                    <p style="font-size:12px;margin-top:8px;">Accept a request to start chatting.</p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- Chat Box -->
+        <div class="chat-box">
+
+            {% if selected_user %}
+
+            <div class="chat-header">
+                <div class="user-dot"></div>
+                <h2>{{ selected_user.fullname }}</h2>
+            </div>
+
+            <div class="messages" id="messages-container" data-my-id="{{ session.user_id }}" data-receiver-id="{{ selected_user.id }}">
+
+                {% if messages %}
+
+                    {% for message in messages %}
+
+                        {% if message.sender_id == session.user_id %}
+
+                            <div class="sent-message">
+                                <p>{{ message.message }}</p>
+                                <span>{{ message.created_at }}</span>
+                            </div>
+
+                        {% else %}
+
+                            <div class="received-message">
+                                <p>{{ message.message }}</p>
+                                <span>{{ message.created_at }}</span>
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div style="text-align:center;color:var(--text-muted);margin:auto;padding:40px;">
+                        <p style="font-size:36px;margin-bottom:12px;">👋</p>
+                        <p>Start the conversation!</p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <form action="{{ url_for('open_chat', user_id=selected_user.id) }}" method="POST" class="message-form">
+
+                <input
+                    type="text"
+                    name="message"
+                    id="message"
+                    placeholder="Type your message..."
+                    required
+                    autocomplete="off"
+                >
+
+                <button type="submit">Send ↑</button>
+
+            </form>
+
+            {% else %}
+
+            <div class="chat-placeholder">
+                <div style="font-size:64px;margin-bottom:20px;">💬</div>
+                <h2>Select a Conversation</h2>
+                <p>Choose a mentor or mentee from the left panel to start chatting.</p>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script>
+    const msgContainer = document.getElementById("messages-container");
+    if (msgContainer) {
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+        
+        const myId = parseInt(msgContainer.dataset.myId);
+        const receiverId = parseInt(msgContainer.dataset.receiverId);
+        
+        if (myId && receiverId) {
+            const socket = io();
+            
+            // Connect to socket
+            socket.on('connect', () => {
+                console.log("Connected to Chat Server!");
+            });
+
+            // Handle receiving messages
+            socket.on('receive_message', (data) => {
+                // Only append if the message belongs to the currently active conversation
+                if (
+                    (data.sender_id === myId && data.receiver_id === receiverId) ||
+                    (data.sender_id === receiverId && data.receiver_id === myId)
+                ) {
+                    // Remove empty placeholder if exists
+                    const placeholder = msgContainer.querySelector("div[style*='text-align:center']");
+                    if (placeholder) placeholder.remove();
+
+                    const isSentByMe = data.sender_id === myId;
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = isSentByMe ? 'sent-message' : 'received-message';
+                    
+                    // Add pop-in animation
+                    msgDiv.style.animation = 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    
+                    msgDiv.innerHTML = `
+                        <p>${data.message}</p>
+                        <span>${data.created_at}</span>
+                    `;
+                    
+                    msgContainer.appendChild(msgDiv);
+                    msgContainer.scrollTop = msgContainer.scrollHeight;
+                }
+            });
+
+            // Handle form submission via Socket
+            const chatForm = document.querySelector(".message-form");
+            const msgInput = document.getElementById("message");
+            
+            if (chatForm) {
+                chatForm.addEventListener("submit", (e) => {
+                    e.preventDefault(); // Stop page reload
+                    const text = msgInput.value.trim();
+                    if (text) {
+                        socket.emit("send_message", {
+                            receiver_id: receiverId,
+                            message: text
+                        });
+                        msgInput.value = "";
+                        msgInput.focus();
+                    }
+                });
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

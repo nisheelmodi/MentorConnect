@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find and connect with experienced mentors on MentorConnect.">
+    <title>Find Mentors | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="mentor-page">
+
+    <div class="page-header">
+        <h1>🔍 Find Your Mentor</h1>
+        <p>Browse available mentors and send mentorship requests.</p>
+    </div>
+
+    {% if role == 'mentee' %}
+    <div class="search-box">
+        <form action="{{ url_for('mentors') }}" method="GET">
+            <input
+                type="text"
+                name="search"
+                id="searchInput"
+                value="{{ search }}"
+                placeholder="Search by name, department or skill..."
+                autocomplete="off"
+            >
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    {% endif %}
+
+
+    <div class="mentor-container">
+
+        {% if mentors %}
+
+            {% for mentor in mentors %}
+
+            <div class="mentor-card stagger-item">
+
+                <div class="mentor-avatar" data-name="{{ mentor.fullname }}">
+                    {{ mentor.fullname[0] | upper }}
+                </div>
+
+                <h2>{{ mentor.fullname }}</h2>
+
+                <p><strong>Department:</strong> {{ mentor.department }}</p>
+                <p><strong>Experience:</strong> {{ mentor.experience }}</p>
+                <p>{{ mentor.bio }}</p>
+
+                {% if mentor.skills %}
+                <div class="skill-tags">
+                    {% for skill in mentor.skills.split(',') %}
+                    <span class="skill-tag">{{ skill.strip() }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mentor-buttons">
+                    <a href="{{ url_for('mentor_profile', mentor_id=mentor.user_id) }}">
+                        <button>View Profile</button>
+                    </a>
+
+                    {% if session.role == 'mentee' %}
+                    <a href="{{ url_for('send_request', mentor_id=mentor.user_id) }}">
+                        <button>Send Request</button>
+                    </a>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-data">
+                <h3>🧑‍🏫 No Mentors Available</h3>
+                <p>No mentor profiles have been created yet. Check back soon!</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

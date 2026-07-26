@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MentorConnect Dashboard — Access your profile, find mentors, manage sessions and more.">
+    <title>Dashboard | MentorConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="cursor-glow"></div>
+<button id="topBtn" title="Back to top">↑</button>
+
+<!-- NAVBAR -->
+{% include 'navbar.html' %}
+
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <div>
+            <h1>Welcome <span class="wave">👋</span> {{ fullname }}</h1>
+            <p>Role: <strong>{{ role|capitalize }}</strong></p>
+        </div>
+    </div>
+
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card">
+            <div class="card-icon">👤</div>
+            <h3>Profile</h3>
+            <p>Complete your mentor/mentee profile to get discovered.</p>
+            <a href="{{ url_for('profile') }}">
+                <button>Open Profile</button>
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">🔍</div>
+            <h3>Mentors</h3>
+            <p>Browse and connect with experienced mentors in your field.</p>
+            <a href="{{ url_for('mentors') }}">
+                <button>Find Mentors</button>
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">📥</div>
+            <h3>Requests</h3>
+            <p>View and manage all your mentorship connection requests.</p>
+            <a href="{{ url_for('requests') }}">
+                <button>View Requests</button>
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">💬</div>
+            <h3>Chat</h3>
+            <p>Start real-time conversations with your mentors or mentees.</p>
+            <a href="{{ url_for('chat') }}">
+                <button>Open Chat</button>
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">📅</div>
+            <h3>Sessions</h3>
+            <p>Schedule and view your upcoming mentorship sessions.</p>
+            <a href="{{ url_for('sessions') }}">
+                <button>View Sessions</button>
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">⭐</div>
+            <h3>Feedback</h3>
+            <p>Rate your sessions and share your mentorship experience.</p>
+            <a href="{{ url_for('feedback') }}">
+                <button>Give Feedback</button>
+            </a>
+        </div>
+
+    </div>
+
+    {% if role == "mentor" %}
+    <div style="margin-top: 40px;">
+        <h2>🎓 My Assigned Mentees</h2>
+        <div class="mentor-container" style="margin-top: 20px;">
+            {% if assigned_mentees %}
+                {% for mentee in assigned_mentees %}
+                <div class="mentor-card stagger-item">
+                    <div class="mentor-avatar" data-name="{{ mentee.fullname }}">
+                        {{ mentee.fullname[0] | upper }}
+                    </div>
+                    <h2>{{ mentee.fullname }}</h2>
+                    <p><strong>Department:</strong> {{ mentee.department or 'N/A' }}</p>
+                    <p><strong>Year:</strong> {{ mentee.year or 'N/A' }}</p>
+                    <p><strong>Interests:</strong> {{ mentee.interests or 'N/A' }}</p>
+                    
+                    <div class="mentor-buttons">
+                        <a href="{{ url_for('open_chat', user_id=mentee.mentee_id) }}">
+                            <button>💬 Chat</button>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-data">
+                    <h3>📭 No Mentees Yet</h3>
+                    <p>You haven't accepted any mentorship requests yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+
+<footer>
+    <div class="footer-logo">MentorConnect</div>
+    <p>© <span id="currentYear">2026</span> MentorConnect. All Rights Reserved.</p>
+</footer>
+
+<div id="loader">
+    <div class="loader-spinner"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>
