@@ -6,14 +6,20 @@ from flask_socketio import SocketIO, emit, join_room
 from functools import wraps
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from config import get_db_connection
+from db_setup import setup_db
+
+# Run database setup on startup
+setup_db()
+
+secure_cookies = os.getenv("SESSION_COOKIE_SECURE", "False").lower() in ("1", "true", "yes", "on")
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 app.secret_key = os.getenv("SECRET_KEY", "mentorconnect_secret_key")
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_SECURE=secure_cookies,
 )
 
 auth_serializer = URLSafeTimedSerializer(app.secret_key)
@@ -255,7 +261,7 @@ def login():
             auth_token,
             httponly=True,
             samesite="Lax",
-            secure=False,
+            secure=secure_cookies,
             max_age=7 * 24 * 60 * 60,
         )
 
@@ -274,7 +280,7 @@ def logout():
 
     session.clear()
     response = redirect(url_for("login"))
-    response.set_cookie("auth_token", "", max_age=0, expires=0)
+    response.set_cookie("auth_token", "", max_age=0, expires=0, secure=secure_cookies)
 
     flash("Logged out successfully.")
     return response
