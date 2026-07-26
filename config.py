@@ -17,13 +17,32 @@ def _get_bool_env(name, default=False):
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST") or os.getenv("MYSQLHOST") or "localhost",
-    "user": os.getenv("DB_USER") or os.getenv("MYSQLUSER") or "root",
-    "password": os.getenv("DB_PASSWORD") if os.getenv("DB_PASSWORD") is not None else (os.getenv("MYSQLPASSWORD") or ""),
-    "database": os.getenv("DB_NAME") or os.getenv("MYSQLDATABASE") or "mentorconnect",
-    "port": int(os.getenv("DB_PORT") or os.getenv("MYSQLPORT") or "3306"),
-}
+def _build_db_config():
+    db_url = os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL")
+    if db_url and (db_url.startswith("mysql://") or db_url.startswith("mysql+mysqlconnector://") or db_url.startswith("mysql+pymysql://")):
+        from urllib.parse import urlparse, unquote
+        try:
+            parsed = urlparse(db_url)
+            config = {
+                "host": parsed.hostname or "localhost",
+                "user": parsed.username or "root",
+                "password": unquote(parsed.password or ""),
+                "database": parsed.path.lstrip("/") or "mentorconnect",
+                "port": parsed.port or 3306,
+            }
+            return config
+        except Exception as e:
+            print(f"[CONFIG WARNING] Failed to parse database URL: {e}")
+            
+    return {
+        "host": os.getenv("DB_HOST") or os.getenv("MYSQLHOST") or "localhost",
+        "user": os.getenv("DB_USER") or os.getenv("MYSQLUSER") or "root",
+        "password": os.getenv("DB_PASSWORD") if os.getenv("DB_PASSWORD") is not None else (os.getenv("MYSQLPASSWORD") or ""),
+        "database": os.getenv("DB_NAME") or os.getenv("MYSQLDATABASE") or "mentorconnect",
+        "port": int(os.getenv("DB_PORT") or os.getenv("MYSQLPORT") or "3306"),
+    }
+
+DB_CONFIG = _build_db_config()
 
 if _get_bool_env("DB_SSL_DISABLED", False):
     DB_CONFIG["ssl_disabled"] = True

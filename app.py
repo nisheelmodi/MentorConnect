@@ -120,6 +120,40 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/debug-db")
+def debug_db():
+    from config import DB_CONFIG
+    import mysql.connector
+    
+    masked_config = DB_CONFIG.copy()
+    if "password" in masked_config:
+        masked_config["password"] = "***" if masked_config["password"] else ""
+        
+    info = {
+        "DB_CONFIG": masked_config,
+        "ENV_VARS": {k: ("***" if "PASS" in k.upper() or "SECRET" in k.upper() else v) for k, v in os.environ.items() if "MYSQL" in k or "DB" in k or k == "DATABASE_URL" or k == "SECRET_KEY"},
+        "connection_status": "Not attempted"
+    }
+    
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        if conn.is_connected():
+            info["connection_status"] = "Success"
+            cursor = conn.cursor()
+            cursor.execute("SHOW TABLES")
+            info["tables"] = [r[0] for r in cursor.fetchall()]
+            cursor.close()
+            conn.close()
+        else:
+            info["connection_status"] = "Failed (is_connected returned False)"
+    except Exception as e:
+        import traceback
+        info["connection_status"] = f"Failed with exception: {e}"
+        info["traceback"] = traceback.format_exc()
+        
+    return info
+
+
 # ===============================
 # REGISTER
 # ===============================
